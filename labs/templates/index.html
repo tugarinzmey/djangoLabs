@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            Форма Django
+        </title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'labsApp/css/style.css' %}" />
+    </head>
+    <body>
+        <form method="POST">
+        {% csrf_token %}
+        <table>
+            {{ form }}
+        </table>
+        <input type="submit" value="Отправить">
+    </body>
+</html>
