@@ -1,5 +1,8 @@
 from django.shortcuts import HttpResponse, render
-from .forms import UserForm
+from .forms import UserForm, LoginForm, RegisterForm
+from django.shortcuts import render, redirect
+from django.contrib.auth import *
+
 
 def index(request):
     if request.method == "POST":
@@ -31,3 +34,43 @@ def products(request, productId = 1):
 def users(request, id = 1, name = "Леха"):
     output = "<div><h2>Пользователь</h2> <h3>id: {0} Имя: {1}</h3><div>".format(id, name)
     return HttpResponse(output)
+
+def loginPage(request):
+    form = LoginForm()
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            user = authenticate(request, username=form.cleaned_data['username'],
+            password=form.cleaned_data['password'])
+            if user is not None:
+                login(request, user)
+                return redirect('me')
+            else: 
+                form.add_error(None, 'Неверные данные!')
+    return render(request, 'login.html', {'form': form})
+                
+
+def registerPage(request):
+
+    form = RegisterForm()
+
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+
+            return redirect('login')
+    return render(request, 'registration.html', {'form': form})
+
+
+def me(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    return render(request, 'me.html', {'user':request.user})
+
+def doLogout(request):
+    logout(request)
+    return redirect('login')
